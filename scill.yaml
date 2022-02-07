@@ -1,0 +1,3267 @@
+openapi: 3.0.0
+info:
+  description: "SCILL gives you the tools to activate, retain and grow your user base in your app or game by bringing you features well known in the gaming industry: Gamification. We take care of the services and technology involved so you can focus on your game and content."
+  version: 1.0.0
+  title: SCILL API
+  contact:
+    email: support@scillgame.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/4Players-GmbH/scill-gaas/1.0.0
+tags:
+  - name: auth
+    description: Auth
+  - name: events
+    description: Events
+  - name: challenges
+    description: Challenges
+  - name: battle-passes
+    description: BattlePasses
+  - name: leaderboardsV2
+    description: Leaderboards V2
+  - name: leaderboards
+    description: Leaderboards
+paths:
+  /api/v1/auth/access-token:
+    servers:
+      - description: Production URL
+        url: https://us.scillgame.com
+      - description: Staging URL
+        url: https://us-staging.scillgame.com
+      - description: Dev URL
+        url: https://us-dev.scillgame.com
+    description: "Generate an access token for API-Key and User ID. This access token
+    can be used in subsequent calls to other APIs."
+    post:
+      tags: [
+          "auth"
+      ]
+      summary: Get an access token for any user identifier signed with the API-Key
+      operationId: generateAccessToken
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/authentication/#access-tokens
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForeignUserIdentifier'
+        description: Foreign user identifier.
+        required: true
+      responses:
+        '200':
+          description: Returns the access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessToken'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          description: "Failed on server side"
+  /api/v1/auth/user-challenge-topic-link:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Request a topic for the MQTT server to receive real time updates if the specified challenge changes for the user. Use the getUserChallengesNotificationTopic operation if you want to get notifications for all challenges."
+    parameters:
+      - in: query
+        name: challenge_id
+        schema:
+          type: string
+        description: The challenge id you want to get notified  
+        required: true
+    get:
+      tags: [
+          "auth"
+      ]
+      summary: Get a topic to be used with an MQTT client to receive real time updates whenever the specified challenge changes.
+      operationId: getUserChallengeNotificationTopic
+      description: Get a topic to be used with an MQTT client to receive real time updates whenever the challenge changes.
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTopic'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'               
+  /api/v1/auth/user-challenges-topic-link:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Request a topic for the MQTT server to receive real time updates if challenges change for the user. This will return changes for all challenges. If you want to listen only for a specific challenge, use the getUserChallengeNotificationTopic."
+    get:
+      tags: [
+          "auth"
+      ]
+      summary: Get a topic to be used with an MQTT client to receive real time updates whenever challenges for the user provided by the access token changes.
+      operationId: getUserChallengesNotificationTopic
+      description: Get a topic to be used with an MQTT client to receive real time updates whenever challenges for the user provided by the access token change.
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTopic'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                        
+  /api/v1/auth/user-battle-pass-topic-link:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Request a topic for the MQTT server to receive real time updates if battle passes change for the user."
+    parameters:
+      - in: query
+        name: battle_pass_id
+        schema:
+          type: string
+        description: The battle pass you want to get notified  
+        required: true
+    get:
+      tags: [
+          "auth"
+      ]
+      summary: Get a topic to be used with an MQTT client to receive real time updates whenever a battle pass or challenges and levels within the battle pass change
+      operationId: getUserBattlePassNotificationTopic
+      description: Get a topic to be used with an MQTT client to receive real time updates whenever a battle pass changes.
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTopic'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'               
+  /api/v1/auth/leaderboard-topic-link:
+    servers:
+      - description: Production URL
+        url: https://us.scillgame.com
+      - description: Staging URL
+        url: https://us-staging.scillgame.com
+      - description: Dev URL
+        url: https://us-dev.scillgame.com
+    description: "Request a topic for the MQTT server to receive real time updates if the leaderboard for the application changes."
+    parameters:
+      - in: query
+        name: leaderboard_id
+        schema:
+          type: string
+        description: The id of the leaderboard you want to get notified  
+        required: true
+    get:
+      tags: [
+          "auth"
+      ]
+      summary: Get MQTT topic for leaderboard
+      operationId: getLeaderboardNotificationTopic
+      description: Get a topic to be used with an MQTT client to receive real time updates whenever the specified leaderboard changes.
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the notification topic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationTopic'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                 
+  /api/v1/user-additional-info:
+    servers:
+      - description: Production URL
+        url: https://us.scillgame.com
+      - description: Staging URL
+        url: https://us-staging.scillgame.com
+      - description: Dev URL
+        url: https://us-dev.scillgame.com
+    description: Provide tools to set additional user info like usernames and avatar images
+    get:
+      tags: [
+          "auth"
+      ]
+      summary: Get additional info stored per user
+      operationId: getUserInfo
+      description: Returns additional info object with usernames and avatar image for a user which is used in the leaderboard system
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [
+          "auth"
+      ]
+      summary: Set additional info stored per user
+      operationId: setUserInfo
+      description: Sets user info like username and avatar image which is returned as part of the user rankings in leaderboards.
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserInfo'
+        description: UserInfo object stored in the SCILL database for the user
+        required: true
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserInfo'
+        '403':
+          $ref: '#/components/responses/Unauthorized'          
+  /api/v1/events:
+    servers:
+      - description: Production URL
+        url: https://ep.scillgame.com
+      - description: Staging URL
+        url: https://ep-staging.scillgame.com
+      - description: Dev URL
+        url: https://ep-dev.scillgame.com
+    description: Events are a piece of structured information that your application or application backend sends to SCILL. Those events are processed in real-time to drive challenges and battle passes that you setup in the Admin Panel and that you activate for your users. Events are also stored in the SCILL backend to drive game analytics. Using this API you can create events.
+    post:
+      tags: [
+          "events"
+      ]
+      summary: Post an event
+      operationId: sendEvent
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/events/#sending-events
+      description: Post an event to the SCILL backend
+      security:
+        - BearerAuth: []
+          ApiKeyType: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '500':
+          description: "Failed on server side"
+        '404':
+          $ref: '#/components/responses/UnknownChallengeType'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventPayload'
+        description: Event payload or team event payload
+        required: true
+  /api/v1/public/documentation:
+    servers:
+      - description: Production URL
+        url: https://ep.scillgame.com
+      - description: Staging URL
+        url: https://ep-staging.scillgame.com
+      - description: Dev URL
+        url: https://ep-dev.scillgame.com
+    description: Returns a list of available events in the platform with required and optional properties. Used internally for updating documentation and the Admin Panel inline help.
+    get:
+      tags: [
+          "events"
+      ]
+      summary: Get all available events and required and optional properties
+      operationId: getAvailableEvents
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/events/
+      description: Get all available events and required and optional properties
+      responses:
+        '200':
+          description: An array of EventDescription objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventDescription'
+        '500':
+          description: "Failed on server side"
+  /api/v1/challenges/personal/get/{appId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: Use this endpoint to get all available challenges for your product. This will be personalized for the user encoded in the access token. It will not return completed challenges. Use getAllPersonalChallenges to get completed challenges.
+    get:
+      tags: [
+          "challenges"
+      ]
+      summary: Get personal challenges that are not yet completed. 
+      operationId: getPersonalChallenges
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#request-challenges
+      description: Get personal challenges organized in categories
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: include_categories
+          description: A list of categories that should be included in the response. Only the categories provided will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+        - in: query
+          name: exclude_categories
+          description: A list of categories that should be excluded from the response. All  categories except those listed here will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false          
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An array of ChallengeCategory objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeCategory'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/personal/unresolved/{appId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: Use this endpoint to get only active challenges. This returns a list of challenges grouped in categories that are not finished yet. Finished (i.e. completed) challenges will not be returned in this endpoint.
+    get:
+      tags: [
+          "challenges"
+      ]
+      summary: Get personal challenges that are not yet completed. 
+      operationId: getUnresolvedPersonalChallenges
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#get-all-unresolved-challenges
+      description: Get personal challenges organized in categories that are not yet finished
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: include_categories
+          description: A list of categories that should be included in the response. Only the categories provided will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+        - in: query
+          name: exclude_categories
+          description: A list of categories that should be excluded from the response. All  categories except those listed here will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false            
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string          
+      responses:
+        '200':
+          description: An array of ChallengeCategory objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeCategory'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'      
+  /api/v1/challenges/personal/all/{appId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: Use this endpoint to get all challenges including completed challenges. This endpoint is best suited for apps that show a todo like list and want to keep showing completed challenges in the list. If you only want show challenges that the user can do something, use getUnresolvedPersonalChallenges instead.
+    get:
+      tags: [
+          "challenges"
+      ]
+      summary: Get all personal challenges available for your app. Also includes completed challenges. 
+      operationId: getAllPersonalChallenges
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#request-challenges
+      description: Get personal challenges organized in categories that are not yet finished
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: include_categories
+          description: A list of categories that should be included in the response. Only the categories provided will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false
+        - in: query
+          name: exclude_categories
+          description: A list of categories that should be excluded from the response. All  categories except those listed here will be returned
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+          style: form
+          explode: false                      
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string          
+      responses:
+        '200':
+          description: An array of ChallengeCategory objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeCategory'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                
+  /api/v1/challenges/personal/get/{appId}/{challengeId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: Use this endpoint to load a challenge by id. This will be personalized for the user encoded in the access token.
+    get:
+      tags: [
+          "challenges"
+      ]
+      summary: Get personal challenge by id
+      operationId: getPersonalChallengeById
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#request-challenges
+      description: Get personal challenges organized in categories
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: challengeId
+          description: The challenge id (see challenge_id of Challenge object)
+          required: true
+          schema:
+            type: string            
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: A challenge object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Challenge'
+                  
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v1/challenges/personal/get-in-progress-challenges/{appId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: Use this endpoint to get all active challenges for your product. This will be personalized for the user encoded in the access token.
+    get:
+      tags: [
+          "challenges"
+      ]
+      summary: Get active personal challenges
+      operationId: getActivePersonalChallenges
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#get-all-active-challenges
+      description: Get active personal challenges organized in categories
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: An array of ChallengeCategory objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChallengeCategory'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/personal/unlock/{appId}/{challengeId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Challenges are locked by default and don't track any progress. Buy (i.e. unlock or activate) a challenge using this REST-API endpoint."
+    post:
+      tags: [
+          "challenges"
+      ]
+      summary: Unlock a personal challenges
+      operationId: unlockPersonalChallenge
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#unlock-a-challenge
+      description: Unlock a personal challenge by product id and challenge id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: challengeId
+          description: The challenge id (see challenge_id of Challenge object)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '201':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/personal/activate/{appId}/{challengeId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Challenges must be activated before they will track progress. Please note, that this endpoint requires the user_challenge_id set as the second paramater."
+    put:
+      tags: [
+          "challenges"
+      ]
+      summary: Activate a personal challenges
+      operationId: activatePersonalChallenge
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#activate-a-challenge
+      description: Activate a personal challenge by product id and user challenge id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: challengeId
+          description: The challenge id (see challenge_id of Challenge object)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/personal/cancel/{appId}/{challengeId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Challenges can be canceled at any time. Use this endpoint to cancel a challenge."
+    put:
+      tags: [
+          "challenges"
+      ]
+      summary: Cancel an active personal challenges
+      operationId: cancelPersonalChallenge
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#cancel-a-challenge
+      description: Cancel an active personal challenge by product id and user challenge id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: challengeId
+          description: The challenge id (see challenge_id of Challenge object)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/personal/claim/{appId}/{challengeId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Completed challenges must be claimed to finish them. Either you do that automatically (for the user) or you offer a user interface for the user to claim the challenge. Only challenges where type is unclaimed can be claimed. Otherwise this request will fail."
+    put:
+      tags: [
+          "challenges"
+      ]
+      summary: Claim the reward of a finished personal challenge
+      operationId: claimPersonalChallengeReward
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#claim-a-reward
+      description: Claim the reward of a finished personal challenge by product id and user challenge id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: challengeId
+          description: The challenge id (see challenge_id of Challenge object)
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/challenges/web-socket/generate-token:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Request an access token for the Websockets server, then you connect to the Websocket server to receive updates in realtime."
+    get:
+      deprecated: true
+      tags: [
+          "challenges"
+      ]
+      summary: Get an access token for the Websockets server notifying of updates in real time
+      operationId: generateWebsocketAccessToken
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/challenges/#1-get-a-topic
+      description: Get an access token for the Websockets server notifying of updates in real time
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      responses:
+        '200':
+          description: Returns the socket token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocketToken'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/reset-challenges/{appId}/{userId}:
+    servers:
+      - description: Production URL
+        url: https://pcs.scillgame.com
+      - description: Staging URL
+        url: https://pcs-staging.scillgame.com
+      - description: Dev URL
+        url: https://pcs-dev.scillgame.com
+    description: "Resets all challenges for a given user"
+    post:
+      tags: [
+          "challenges"
+      ]
+      summary: Resets all challenges for the given app ID and user ID
+      operationId: resetUserAppChallenges
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/realtimeupdates/
+      description: Resets all challenges for the given app ID and user ID
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: userId
+          description: The user id (
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/battle-passes/{appId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Using this endpoint you can query all available Battle Passes for the given product id. Typically this query is used to show Battle Passes the user can purchase. You can use the package_sku field to trigger the corresponding in-app purchase.
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle passes
+      operationId: getBattlePasses
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#retrieve-available-bps
+      description: Get battle passes for the product
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: An array of BattlePass objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BattlePass'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/battle-passes/{appId}/active:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Using this endpoint you can query all active available Battle Passes for the given app id. Typically this query is used to show Battle Passes the user can purchase. You can use the package_sku field to trigger the corresponding in-app purchase.
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle passes
+      operationId: getActiveBattlePasses
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#retrieve-available-bps
+      description: Get active battle passes for the app
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: An array of BattlePass objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BattlePass'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v1/battle-passes/{appId}/unlocked:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Using this endpoint you can query all Battle Passes unlocked for the user. 
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle passes unlocked by the user
+      operationId: getUnlockedBattlePasses
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#retrieve-available-bps
+      description: Get unlocked battle passes for the user encoded in the access token
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: An array of BattlePass objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BattlePass'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                  
+  /api/v1/battle-passes/{appId}/single/{battlePassId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Use this endpoint to retrieve a specific battle pass. By using the access token this object is enriched with user specific additions and current status.
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle pass by id
+      operationId: getBattlePass
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#retrieve-available-bps
+      description: Get battle pass for the product with id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: battlePassId
+          description: The id of the battle pass. It’s the same as in battle_pass_id you received in earlier requests (i.e. getting all active battle passes for a product).
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: A BattlePass object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BattlePass'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/battle-pass-levels/{appId}/{battlePassId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Use this endpoint to retrieve the levels of a specific battle pass.
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle pass levels for a battle pass
+      operationId: getBattlePassLevels
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses#retrieve-available-bps
+      description: Get battle pass levels for a battle pass
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: battlePassId
+          description: The id of the battle pass. It’s the same as in battle_pass_id you received in earlier requests (i.e. getting all active battle passes for a product).
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: An array of BattlePassLevel objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BattlePassLevel'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v1/battle-pass-levels/{appId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Get all battle pass levels for the app
+    get:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Get battle pass levels for an app (from all battle passes)
+      operationId: getAllBattlePassLevels
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#retrieve-battle-pass
+      description: Get all battle pass levels for an app
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: An array of BattlePassLevel objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BattlePassLevel'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                    
+  /api/v1/battle-pass-levels/{appId}/activate/{levelId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Use this endpoint to activate a battle pass level by level id
+    post:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Activate a given battle pass level by id
+      operationId: activateBattlePassLevel
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#activate-level
+      description: Activate a given battle pass level by id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: levelId
+          description: The id of the battle pass level.
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v1/battle-pass-levels/{appId}/claim/{levelId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Use this endpoint to claim a battle pass level reward by level id
+    post:
+      tags: [
+          "battle-passes"
+      ]
+      summary: Claim the battle pass level reward. This will trigger a Webhook that you can use to unlock the reward on server side. If you don't have a server you can also unlock in the client application after receiving a positive response.
+      operationId: claimBattlePassLevelReward
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/#activate-level
+      description: Claim the battle pass level id
+      security:
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: levelId
+          description: The id of the battle pass level.
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                           
+  /api/v2/leaderboards/{leaderboardId}:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Get the current leaderboard by id
+    get:
+      tags: [
+        "leaderboardsV2"  
+      ]
+      summary: Retrieve Leaderboard
+      operationId: getLeaderboardV2
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#retrieve-leaderboard
+      description: Provides the selected leaderboard V2 rankings for a specific leaderboard.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: leaderboardId
+          description: The id of the leaderboard
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: aggregate
+          description: The aggregate function for the calculation of the results - can be BEST (returns a single score - either the lowest if ASC sorting is used, or the highest if DESC is used) or SUM (default value - increments (sums up) the scores).
+          schema:
+            type: string
+            example: 'BEST'
+          required: false
+        - in: query
+          name: currentPage
+          schema:
+            type: integer
+          description: The page index starting at 1. The number of pageSize elements are returned for each page. Default value is 1
+          required: false
+        - in: query
+          name: currentPosition
+          schema:
+            type: integer
+          description: The starting leaderboard position from which the results should be loaded. The number of results is controlled via the pageSize variable. This parameter overrides the currentPage parameter.
+          required: false
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: The number of elements per page. Default is 25.
+          required: false      
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardV2Results'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v2/leaderboards:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Get all leaderboard results
+    get:
+      tags: [
+        "leaderboardsV2"  
+      ]
+      summary: Retrieve Leaderboards
+      operationId: getLeaderboardsV2
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#retrieve-leaderboards
+      description: Returns an array of LeaderboardV2Results items defined for the application.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: aggregate
+          description: The aggregate function for the calculation of the results - can be BEST (returns a single score - either the lowest if ASC sorting is used, or the highest if DESC is used) or SUM (default value - increments (sums up) the scores).
+          schema:
+            type: string
+            example: 'BEST'
+          required: false
+        - in: query
+          name: currentPage
+          schema:
+            type: integer
+          description: The page index starting at 1. The number of pageSize elements are returned for each page. Default value is 1
+          required: false
+        - in: query
+          name: currentPosition
+          schema:
+            type: integer
+          description: The starting leaderboard position from which the results should be loaded. The number of results is controlled via the pageSize variable. This parameter overrides the currentPage parameter.
+          required: false
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: The number of elements per page. Default is 25.
+          required: false          
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:              
+                  $ref: '#/components/schemas/LeaderboardV2Results'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                  
+  /api/v2/leaderboards-members/{memberType}/{memberId}:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Get the rankings for a specified user for all leaderboards V2 defined in the application
+    get:
+      tags: [
+        "leaderboardsV2"  
+      ]
+      summary: Retrieve user rankings across all leaderboards
+      operationId: getLeaderboardV2Rankings
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#retrieve-user-rankings
+      description: Returns an array of LeaderboardV2MemberRanking items defined for all leaderboards in the application specified for the user. If the member is not in the leaderboard, the rank will be -1 in the LeaderboardRanking object.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: memberType
+          schema:
+            type: string
+          description: The member type, can be user or team (right now) and sets which leaderboards should be selected.
+          required: true
+        - in: path
+          name: memberId
+          schema:
+            type: string
+          description: Either the user_id or team_id you used when sending the events. The memberType flag identifies which one is used.
+          required: true    
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: aggregate
+          description: The aggregate function for the calculation of the results - can be BEST (returns a single score - either the lowest if ASC sorting is used, or the highest if DESC is used) or SUM (default value - increments (sums up) the scores).
+          schema:
+            type: string
+            example: 'BEST'
+          required: false      
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: An array of LeaderboardV2MemberRanking objects with information about all the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:              
+                  $ref: '#/components/schemas/LeaderboardV2MemberRanking'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                     
+  /api/v2/leaderboards-members/{memberType}/{memberId}/{leaderboardId}:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Get the rankings for a specified user and the specified leaderboard V2 defined in the application. If the member is not in the leaderboard, the rank will be -1 in the LeaderboardRanking object.
+    get:
+      tags: [
+        "leaderboardsV2"  
+      ]
+      summary: Retrieve user ranking for a single leaderboard V2
+      operationId: getLeaderboardV2Ranking
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#retrieve-user-rankings
+      description: Returns a LeaderboardV2MemberRanking item for the specified leaderboard. Use this route to get the position of a user of team in a specified leaderboard.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: memberType
+          schema:
+            type: string
+          description: The member type, can be user or team (right now) and sets which leaderboards should be selected.
+          required: true
+        - in: path
+          name: memberId
+          schema:
+            type: string
+          description: Either the user_id or team_id you used when sending the events. The memberType flag identifies which one is used.
+          required: true         
+        - in: path
+          name: leaderboardId
+          description: The id of the leaderboard
+          required: true
+          schema:
+            type: string   
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: aggregate
+          description: The aggregate function for the calculation of the results - can be BEST (returns a single score - either the lowest if ASC sorting is used, or the highest if DESC is used) or SUM (default value - increments (sums up) the scores).
+          schema:
+            type: string
+            example: 'BEST'
+          required: false       
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: A LeaderboardMemberRankings object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:              
+                $ref: '#/components/schemas/LeaderboardV2MemberRanking'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v2/leaderboards-reset/{appId}/{leaderboardId}:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Deletes all leaderboard V2 data, i.e. reset the leaderboard V2.
+    delete:
+      tags: [
+        "leaderboardsV2"  
+      ]
+      summary: Reset user leaderboard data
+      operationId: resetLeaderboardV2Rankings
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#reset-leaderboard-data
+      description: Deletes all leaderboard V2 data, i.e. reset the leaderboard V2.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:      
+        - in: path
+          name: appId
+          description: The application ID
+          required: true
+          schema:
+            type: string  
+        - in: path
+          name: leaderboardId
+          schema:
+            type: string
+          description: The leaderboard ID
+          required: true                 
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'   
+  /api/v1/battle-passes/{appId}/unlock/{battlePassId}:
+    servers:
+      - description: Production URL
+        url: https://es.scillgame.com
+      - description: Staging URL
+        url: https://es-staging.scillgame.com
+      - description: Dev URL
+        url: https://es-dev.scillgame.com
+    description: Unlock the specified battle pass for the user provided in the access token. You can provide purchase info like price and currency.
+    post:
+      tags: [
+        "battle-passes"  
+      ]
+      summary: Unlock the battle pass for the user specified in the access token
+      operationId: unlockBattlePass
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/battlepasses/
+      description: Unlock the battle pass for a user
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: appId
+          description: The app id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: battlePassId
+          description: The id of the battle pass. It’s the same as in battle_pass_id you received in earlier requests (i.e. getting all active battle passes for a product).
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string            
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BattlePassUnlockPayload'
+        description: Provide purchase info for the battle pass
+        required: false
+      responses:
+        '200':
+          $ref: '#/components/responses/BattlePassUnlocked'
+        '402':
+          $ref: '#/components/responses/RequestNotPossible'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'  
+  /api/v1/leaderboards/{leaderboardId}:
+    description: Get current leaderboard specific by id
+    get:
+      tags: [
+        "leaderboards"  
+      ]
+      summary: Retrieve Leaderboard
+      operationId: getLeaderboard
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.scillgame.com/api/leaderboards.html
+      description: Provides the current leaderboard rankings for a specific leaderboard.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: leaderboardId
+          description: The id of the leaderboard
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: currentPage
+          schema:
+            type: integer
+          description: The page index starting at 1. The number of pageSize elements are returned for each page. Default value is 1
+          required: false
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: The number of elements per page. Default is 25.
+          required: false   
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false     
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Leaderboard'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+  /api/v1/leaderboards:
+    description: Get all leaderboards
+    get:
+      tags: [
+        "leaderboards"  
+      ]
+      summary: Retrieve Leaderboards
+      operationId: getLeaderboards
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.scillgame.com/api/leaderboards.html
+      description: Returns an array of Leaderboard items defined for the application.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: query
+          name: currentPage
+          schema:
+            type: integer
+          description: The page index starting at 1. The number of pageSize elements are returned for each page. Default value is 1
+          required: false
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          description: The number of elements per page. Default is 25.
+          required: false 
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false           
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:              
+                  $ref: '#/components/schemas/Leaderboard'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                  
+  /api/v1/leaderboards-members/{memberType}/{memberId}:
+    description: Get the rankings for a specified user for all leaderboards defined in the application
+    get:
+      tags: [
+        "leaderboards"  
+      ]
+      summary: Retrieve User Rankings
+      operationId: getLeaderboardRankings
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.scillgame.com/api/leaderboards.html
+      description: Returns an array of LeaderboardRanking items defined for all leaderboards in the application specified for the user. If the member is not in the leaderboard, the rank will be -1 in the LeaderboardRanking object.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: memberType
+          schema:
+            type: string
+          description: The member type, can be user or team (right now) and sets which leaderboards should be selected.
+          required: true
+        - in: path
+          name: memberId
+          schema:
+            type: string
+          description: Either the user_id or team_id you used when sending the events. The memberType flag identifies which one is used.
+          required: true  
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false         
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                 
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:              
+                  $ref: '#/components/schemas/LeaderboardMemberRanking'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'                     
+  /api/v1/leaderboards-members/{memberType}/{memberId}/{leaderboardId}:
+    description: Get the rankings for a specified user and the specified leaderboard defined in the application. If the member is not in the leaderboard, the rank will be -1 in the LeaderboardRanking object.
+    get:
+      tags: [
+        "leaderboards"  
+      ]
+      summary: Retrieve User Ranking
+      operationId: getLeaderboardRanking
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.scillgame.com/api/leaderboards.html
+      description: Returns a LeaderboardMemberRanking item for the specified leaderboard. Use this route to get the position of a user of team in a specified leaderboard.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:
+        - in: path
+          name: memberType
+          schema:
+            type: string
+          description: The member type, can be user or team (right now) and sets which leaderboards should be selected.
+          required: true
+        - in: path
+          name: memberId
+          schema:
+            type: string
+          description: Either the user_id or team_id you used when sending the events. The memberType flag identifies which one is used.
+          required: true         
+        - in: path
+          name: leaderboardId
+          description: The id of the leaderboard
+          required: true
+          schema:
+            type: string   
+        - in: query
+          name: startDate
+          description: The starting date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false
+        - in: query
+          name: endDate
+          description: The ending date for fetching results.
+          schema:
+            type: string
+            format: RFC3339
+            example: '2020-08-17T00:00:00Z'
+          required: false    
+        - in: query
+          name: language
+          description: Set the language. Content can be translated in the Admin Panel. Values can be international language codes like de, en, fr, it, ...
+          required: false
+          schema:
+            type: string                   
+      responses:
+        '200':
+          description: A Leaderboard object with information about the leaderboard and current rankings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LeaderboardMemberRanking'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /api/v1/reset-leaderboard/{memberType}/{appId}/{memberId}:
+    servers:
+      - description: Production URL
+        url: https://ls.scillgame.com
+      - description: Staging URL
+        url: https://ls-staging.scillgame.com
+      - description: Dev URL
+        url: https://ls-dev.scillgame.com
+    description: Delete all leaderboard data, i.e. reset the leaderboard for the specified member.
+    delete:
+      tags: [
+        "leaderboards"  
+      ]
+      summary: Reset user leaderboard data
+      operationId: resetLeaderboardRankings
+      externalDocs:
+        description: SCILL API Reference
+        url: https://developers.4players.io/scill/api/leaderboards/#reset-leaderboard-data
+      description: Delete all leaderboard data, i.e. reset the leaderboard for the specified member.
+      security: 
+        - BearerAuth: []
+        - oAuthNoScopes: []
+      parameters:      
+        - in: path
+          name: memberType
+          schema:
+            type: string
+          description: The member type, can be user or team (right now) and sets which leaderboards should be selected.
+          required: true  
+        - in: path
+          name: appId
+          description: The application ID
+          required: true
+          schema:
+            type: string  
+        - in: path
+          name: memberId
+          schema:
+            type: string
+          description: Either the user_id or team_id you used when sending the events. The memberType flag identifies which one is used.
+          required: true                 
+      responses:
+        '200':
+          $ref: '#/components/responses/ActionSuccessful'
+        '403':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'         
+components:
+  schemas:
+    UserInfo:
+      nullable: true
+      type: object
+      description: Can be any object that is attached to the user. You can set these values in the user service. For example you can provide a user name and an avatar image url.
+      properties:
+        username:
+          nullable: true      
+          type: string
+          example: "NoName"
+          description: The user name of the user
+        avatarImage:
+          nullable: true
+          type: string
+          example: "https://www.example.com/avatars/unknown.png"
+          description: The name or URL of an avatar image for a user. 
+    Leaderboard:
+      type: object
+      description: The Leaderboard object contains information about the leaderboard itself like the name and the id, but also contains actual rankings for users
+        and teams.
+      properties:
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        grouped_by_users:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardRanking'
+          description: An array of LeaderboardRanking Items for individual users
+        grouped_by_teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/LeaderboardRanking'
+          description: An array of LeaderboardRanking Items for teams. Provide a team_id in the event payload to also create leaderboards for teams
+        num_teams:
+          type: number
+          example: 20482
+          description: The total number of team rankings available in the leaderboard
+        num_users:
+          type: number
+          example: 137299
+          description: The total number of user rankings available in the leaderboard
+    LeaderboardInfo:
+      type: object
+      description: The Leaderboard object contains information about the leaderboard itself like the name and the id
+      properties:
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The id of the app      
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        event_type:
+          type: string
+          example: "finish-round"
+          description: The event type that triggers this leaderboard
+        sort_order_ascending:
+          type: boolean
+          example: true
+          description: True if this leaderboard sorts the score ascending or false if the ranking is defined by a descending score.
+    LeaderboardMemberRanking:
+      type: object
+      description: You get these object if you query the leaderboard ranking for a specific user. Only the requested user will be returned.
+      properties:
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        member:
+          $ref: '#/components/schemas/LeaderboardRanking'
+    LeaderboardRanking:
+      description: The ranking for the user or team in the leaderboard
+      type: object
+      properties:
+        member_id:
+          type: string
+          example: "1234567"
+          description: The id of the user - its the same user id you used to create the access token and the same user id you used to send the events
+        member_type:
+          type: string
+          example: "user"
+          description: Indicates what type this entry is, it's either user or team
+        score:
+          type: integer
+          example: 3843
+          description: The score achieved as an integer value. If you want to store floats, for example laptimes you need to convert them into an int before (i.e. multiply by 100 to get hundreds of seconds and format back to float in UI)
+        rank:
+          type: integer
+          example: 3
+          description: The position within the leaderboard
+        additional_info:
+          $ref: '#/components/schemas/UserInfo'
+    LeaderboardScore:
+      type: object
+      description: Contains info about rank and score
+      properties:
+        score:
+          type: integer
+          example: 3843
+          description: The score achieved as an integer value. If you want to store floats, for example laptimes you need to convert them into an int before (i.e. multiply by 100 to get hundreds of seconds and format back to float in UI)
+        rank:
+          type: integer
+          example: 3
+          description: The position within the leaderboard
+    LeaderboardUpdatePayload:
+      type: object
+      description: The payload used for realtime updates and webhooks if a leaderboard is updated.
+      properties:
+        webhook_type:
+          type: string
+          description: The type of the webhook, in this case it is leaderboard-ranking-changed
+          example: "leaderboard-ranking-changed"
+        leaderboard_data:
+          $ref: '#/components/schemas/LeaderboardInfo'
+        member_data:
+          $ref: '#/components/schemas/LeaderboardRanking'
+        old_leaderboard_ranking:
+          $ref: '#/components/schemas/LeaderboardScore'
+        new_leaderboard_ranking:
+          $ref: '#/components/schemas/LeaderboardScore' 
+    LeaderboardV2Results:
+      type: object
+      description: The Leaderboard object contains information about the leaderboard itself like the name and the id, but also contains actual rankings for users
+        and teams.
+      properties:
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        leaderboard_name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        leaderboard_sort_order_ascending:
+          type: boolean
+          example: true
+          description: Determines the results sort order. If true, the order is ascending, otherwise, it's descending.
+        leaderboard_results_by_member_type:
+          type: object
+          description: This object uses two keys - "user" and "team", both of which contain ranking info
+          properties:
+            team:
+              $ref: '#/components/schemas/LeaderboardV2MemberTypeRanking'
+            user:
+              $ref: '#/components/schemas/LeaderboardV2MemberTypeRanking'
+    LeaderboardV2Info:
+      type: object
+      description: The Leaderboard object contains information about the leaderboard itself like the name and the id
+      properties:
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The id of the app      
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        leaderboard_name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        event_type:
+          type: string
+          example: "finish-round"
+          description: The event type that triggers this leaderboard
+        sort_order_ascending:
+          type: boolean
+          example: true
+          description: True if this leaderboard sorts the score ascending or false if the ranking is defined by a descending score.
+    LeaderboardV2Changed:
+      type: object
+      description: This object is sent via Webhook or notifications of type leaderboard-changed. 
+      properties:
+        webhook_type:
+          type: string
+          description: The type of the notification. If you receive this payload, it's most likely leaderboard-changed.
+          example: laderboard-info
+        old_leaderboard:
+          $ref: '#/components/schemas/LeaderboardV2Info'
+        new_leaderboard:
+          $ref: '#/components/schemas/LeaderboardV2Info'
+    LeaderboardV2MemberRanking:
+      type: object
+      description: The Leaderboard object contains information about the leaderboard itself like the name and the id
+      properties:    
+        leaderboard_id:
+          type: string
+          example: "641184035742547979"
+          description: The id of the leaderboard
+        leaderboard_name:
+          type: string
+          example: "Hall of Fame"
+          description: The name of the leaderboard
+        leaderboard_sort_order_ascending:
+          type: boolean
+          example: true
+          description: Determines the results sort order. If true, the order is ascending, otherwise, it's descending.  
+        leaderboard_member:
+          $ref: '#/components/schemas/LeaderboardV2Member'
+    LeaderboardV2MemberTypeRanking:
+      type: object
+      description: You get this object if you query the leaderboard ranking for a specific user. Only the requested user will be returned.
+      properties:
+        count:
+          type: integer
+          example: 123
+          description: The total number of members included in the results
+        members:
+          type: array
+          description: An array of LeaderboardMember objects
+          items:
+            $ref: '#/components/schemas/LeaderboardV2Member'
+    LeaderboardV2Member:
+      description: The ranking for the user or team in the leaderboard
+      type: object
+      properties:
+        member_id:
+          type: string
+          example: "1234567"
+          description: The id of the user - its the same user id you used to create the access token and the same user id you used to send the events
+        member_type:
+          type: string
+          example: "user"
+          description: Indicates what type this entry is, it's either user or team
+        score:
+          type: integer
+          example: 3843
+          description: The score achieved as an integer value. If you want to store floats, for example laptimes you need to convert them into an int before (i.e. multiply by 100 to get hundreds of seconds and format back to float in UI)
+        rank:
+          type: integer
+          example: 3
+          description: The position within the leaderboard
+        metadata_results:
+          type: array
+          description: Returns an array of the LeaderboardMemberMetadata objects containing user ranking metadata information
+          items:
+            $ref: '#/components/schemas/LeaderboardV2MemberMetadata'
+        additional_info:
+          $ref: '#/components/schemas/UserInfo'
+    LeaderboardV2MemberMetadata:
+      description: The object containing secondary metadata ranking information, useful for tied scores on the main tracking parameter
+      type: object
+      properties:
+        key:
+          type: string
+          example: required_time
+          description: The event type key used for ranking 
+        ranked:
+          type: boolean
+          description: Determines if the user is ranked for that event type key. If false, no score and rank will be provided
+        score:
+          type: integer
+          example: 3843
+          description: The score achieved as an integer value. If you want to store floats, for example laptimes you need to convert them into an int before (i.e. multiply by 100 to get hundreds of seconds and format back to float in UI)
+        rank:
+          type: integer
+          example: 3
+          description: The position within the leaderboard
+    LeaderboardV2UpdatePayload:
+      type: object
+      description: The payload used for realtime updates and webhooks if a leaderboard is updated.
+      properties:
+        webhook_type:
+          type: string
+          description: The type of the webhook, in this case it is leaderboard-ranking-changed
+          example: "leaderboard-ranking-changed"
+        leaderboard_data:
+          $ref: '#/components/schemas/LeaderboardV2Info'
+        member_data:
+          $ref: '#/components/schemas/LeaderboardV2Member'
+        old_leaderboard_ranking:
+          $ref: '#/components/schemas/LeaderboardScore'
+        new_leaderboard_ranking:
+          $ref: '#/components/schemas/LeaderboardScore'          
+    ActionResponse:
+      type: object
+      description: Standard response for actions like update or delete. If anything went fine, you'll receive a HTTP code of 200 and a OK message.
+      required:
+        - message
+        - status
+      properties:
+        status:
+          type: integer
+          example: 200
+          description: "HTTP status code"
+        message:
+          type: string
+          example: "OK"
+        challenge:  
+          $ref: '#/components/schemas/Challenge'  
+    Challenge:
+      type: object
+      description: The challenge object holds all information about a users challenge. It contains information like the duration, the type, progress states like counter and the goal and various other info.
+      properties:
+        challenge_id:
+          type: string
+          example: '505538946732425217'
+          description: The unique id of this challenge. Every challenge is linked to a product.
+        challenge_name:
+          type: string
+          example: 'Survive 3 battles'
+          description: The name of the challenge in the language set by the language parameter.
+        challenge_description:
+          type: string
+          example: 'Get a great reward by managing this challenge. You can try as long as you like'
+          description: An optional multi-language description that can be set in the Admin Panel. Used to describe exactly what the user has to do.
+        challenge_duration_time:
+          type: number
+          example: 500
+          description: The duration of the challenge in seconds. Challenges auto lock after time-out and need to be unlocked again.
+        live_date:
+          type: string
+          nullable: true
+          format: datestring
+          example: 'null'
+          description: The date this challenge should start. Use that field to create challenges that start in the future.          
+        challenge_goal:
+          type: integer
+          example: 5
+          description: Indicates how many “tasks” must be completed or done to complete this challenge.
+        user_challenge_current_score:
+          type: integer
+          example: 0
+          description: Indicates how many tasks the user already has completed. Use this in combination with challenge_goal to render a nice progress bar.
+        challenge_icon:
+          type: string
+          example: 'black-arrow'
+          description: In the admin panel you can set a string representing an image. This can be a URL, but it can also be an image or texture that you have in your games asset database.
+        challenge_icon_hd:
+          type: string
+          example: 'black-arrow-hd'
+          description: This is the HD variant of the challenge icon image. If you have a game, that runs on multiple platforms that could come in handy. Otherwise just leave blank.
+        challenge_price: 
+          type: integer
+          example: 0
+          description: If you purchase the challenge, you can set a price.
+        challenge_reward: 
+          type: string
+          example: "weapon_a"
+          description: Set a reward for this challenge. This is a string value that you can map to anything in your code. Use in combination with challenge_reward_type.
+        challenge_reward_type:
+          type: string
+          example: "item"
+          description: The reward type can be set to various different settings. Use it to implement different reward types on your side and use challenge_reward to set the value or amount of this reward.
+        challenge_goal_condition: 
+          type: integer
+          example: 0
+          description: "With this you can set the way how the SCILL system approaches the challenges state. 0 means, that the counter of the challenge must be brought above the goal. If this is 1, then the counter must be kept below the goal. This is often useful for challenges that include times, like: Manage the level in under 50 seconds."        
+        challenge_xp: 
+          type: integer
+          example: 0
+          description: If you have experience, player rankings whatever, you can use this field to set the gain in that when this challenge is rewarded. 
+        repeatable:
+          type: boolean
+          example: false
+          description: If this challenge can be only activated once per user this will be false. Otherwise this challenge will always be added to list of available challenges (see personal or alliance challenges).
+        type:
+          type: string
+          example: 'unlock'
+          description: "Indicates the status of the challenge. This can be one of the following unlock: Challenge does not track anything. in-progress: Challenge is active and tracking. overtime: User did not manage to finish the challenge in time. unclaimed: The challenge has been completed but the reward has not yet been claimed. finished: The challenge has been successfully be completed and the reward has been claimed"
+        challenge_auto_activated:
+          type: boolean
+          example: true
+          description: Indicates if the challenges lifecycle is handled automatically by the SCILL backend. Use this flag
+            to decide when to show action buttons for unlocking, activating, claiming or canceling challenges. Hide the buttons
+            if this flag is true, and let the user manage challenges manually if this flag is false.
+        is_claimed:
+          type: boolean
+          example: false
+          description: If the challenge reward has been claimed this is true otherwise its false.
+        user_challenge_unlocked_at:
+          type: string
+          format: datestring
+          nullable: true
+          example: 'null'
+          description: This is the timestamp the challenge has been unlocked.
+        user_challenge_activated_at:
+          type: string
+          format: datestring
+          nullable: true
+          example: 'null'
+          description: This is the timestamp the challenge has been activated.
+        user_challenge_is_claimed:
+          type: boolean
+          example: false
+          description: Indicates if this challenge has been claimed.
+        user_challenge_status:
+          type: integer
+          example: 0
+          description: Gives indication in what state the challenge is. 
+    ChallengeCategory:
+      type: object
+      description: Challenges are grouped into categories. You can exclude or include categories in queries. Per default all categories will be returned. 
+      properties:
+        is_daily_category:
+          type: boolean
+          example: false
+          description: Indicates if this is the daily category, bringing up new challenges every day for the user to tackle.
+        category_position:
+          type: integer
+          example: 0
+          description: In the admin panel you set the order of the categories. This is the position index and indicates the position within the categories array.
+        category_slug:
+          type: string
+          example: 'beginner-challenges'
+          description: A short name without special chars to make it easier to refer to a specific category (in code) that is language and id agnostic.
+        category_name:
+          type: string
+          example: 'Beginner challenges'
+          description: The name of the category in the local language set as the query parameter.
+        category_id:
+          type: string
+          example: '543133912041586700'
+          description: Indicates how many “tasks” must be completed or done to complete this challenge.
+        challenges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Challenge'
+          description: An array of Challenge objects.
+    BattlePass:
+      type: object
+      description: A Battle Pass is a structured layer above challenges and handles the lifecycle of challenges based on a level system. Users need to fullfil challenges to unlock the next level. Each level can have a reward that you can specify in the BattlePassLevel structure. Battle Passes need to be unlocked before they start tracking progress. 
+      properties:
+        battle_pass_id:
+          type: string
+          example: "603693723277918210"
+          description: The unique id of this battle pass.
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The unique id of the app
+        battle_pass_name:
+          type: string
+          example: "My Battlepass"
+          description: The name of the battle bass. You can set that in the Admin Panel. The language is set with the query parameter language. See documentation for more info on that.
+        battle_pass_description:
+          type: string
+          example: "This battle pass gives you great fun and awesome rewards."
+          description: The description of the battle bass. You can set that in the Admin Panel and it can also be HTML. The language is set with the query parameter language. See documentation for more info on that.          
+        battle_pass_short_description:
+          type: string
+          example: "This battle pass gives you great fun and awesome rewards."
+          description: A short description of the battle bass. You can set that in the Admin Panel and it can also be HTML. The language is set with the query parameter language. See documentation for more info on that.      
+        battle_pass_disclaimer:
+          type: string
+          example: 'Use at your own risk'
+          description: Use this to provide some terms and conditions following along this battle passes purchase.          
+        battle_pass_priority:
+          type: integer
+          example: 1
+          description: The priority of the battle pass. I.e. if multiple are available you can use this field to sort them.
+        package_sku_ios:
+          type: string
+          example: "com.example.bp.season1"
+          description: If you want to sell Battle Passes you can use this field to trigger in-app purchase products within your mobile app. You can set this value in the Admin Panel. This one is for iOS.
+        package_sku_android:
+          type: string
+          example: "com.example.bp.season1"
+          description: If you want to sell Battle Passes you can use this field to trigger in-app purchase products within your mobile app. You can set this value in the Admin Panel. Use this to set the package string for Android.
+        image_xs:
+          type: string
+          example: 'season1_xs.png'
+          description: The xs sized image name or url. You can determine the best size distribution yourself and depends on your application or UI
+        image_s:
+          type: string
+          example: 'season1_s.png'
+          description: The s sized image name or url. You can determine the best size distribution yourself and depends on your application or UI          
+        image_m:
+          type: string
+          example: 'season1_m.png'
+          description: The m sized image name or url. You can determine the best size distribution yourself and depends on your application or UI   
+        image_l:
+          type: string
+          example: 'season1_l.png'
+          description: The l sized image name or url. You can determine the best size distribution yourself and depends on your application or UI
+        image_xl:
+          type: string
+          example: 'season1_xl.png'
+          description: The xl sized image name or url. You can determine the best size distribution yourself and depends on your application or UI       
+        start_date:
+          type: string
+          format: RFC3339
+          example: '2020-08-17T00:00:00Z'
+          description: The date (in iso format) when the Battle Pass starts. Tracking begins once this date is passed.
+        end_date:
+          type: string
+          format: RFC3339
+          example: '2020-08-17T00:00:00Z'
+          description: The date (in iso format) when the Battle Pass ends. Tracking stops once the end is reached and users will not be able to progress further than what they have achieved up to that point.
+        read_more_link:
+          type: string
+          example: 'https://www.example.com/battle-passes/season1.html'
+          description: If the Battle Pass costs “money” you may want to route the user to a web site/page, where they can learn more about this battle pass. You can also use this field to route the user inside your application by providing a path or whatever works for you.
+        is_unlocked_incrementally:
+          type: boolean
+          example: true
+          description: "Indicates if one level after the other must be activated or if users can activate whichever level they want. Typically battle passes are unlocked level by level, but if battle passes are used for other applications (like user referal programs) it can be useful to set this to false."
+        is_active:
+          type: boolean
+          example: false
+          description: Indicated if this battle pass is active.
+        unlocked_at:
+          type: string
+          format: RFC3339
+          example: "2020-08-26T08:51:09Z"
+          description: The date in iso format when the user unlocked this Battle Pass.
+        can_purchase_with_money:
+          type: boolean
+          example: true
+          description: Indicates that this Battle Pass can be purchased via in-app purchase. This can be set in the Admin Panel.
+        can_purchase_with_coins:
+          type: boolean
+          example: false
+          description: Indicates that this Battle Pass can be purchased with SCILL Coins. This can be set in the Admin Panel.
+    BattlePassTranslation:
+      deprecated: true
+      type: object
+      properties:
+        language_id:
+          type: string
+          example: '594089057856618499'
+          description: The id of the language
+        name:
+          type: string
+          example: 'Season 1'
+          description: The name of the Battle Pass in the local language set in the request (see Setting Language). In the admin panel you can either create HTML content or plain text.
+        description:
+          type: string
+          example: 'Get some great items this season.'
+          description: The description of the Battle Pass in the local language set in the request (see Setting Language). In the admin panel you can either create HTML content or plain text.
+        short_description:
+          type: string
+          example: 'Get great items'
+          description: A short description in the local language you can use to teaser battle passes or implement “expand for more” functionality.
+        disclaimer:
+          type: string
+          example: 'Use at your own risk'
+          description: Use this to provide some terms and conditions following along this battle passes purchase.
+    BattlePassLevel:
+      type: object
+      description: Battle Passes are grouped into levels that contain challenges that must be achieved to unlock the next level. Only challenges for the current level are tracking progress.
+      properties:
+        level_id:
+          type: string
+          example: "563006391671062538"
+          description: Unique id of this BattlePassLevel object.
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The app id
+        battle_pass_id:
+          type: string
+          example: "603693723277918210"
+          description: The id of the battle pass this level belongs to    
+        reward_amount:
+          type: string
+          example: "100"
+          description: In the Admin Panel you can set different types of rewards. You can also set an identifier of an in-game-item or anything you like. Use this to include the reward into your own business logic.
+        reward_type_name:
+          deprecated: true
+          type: string
+          example: "Coins"
+          description: There are different types of rewards available. Possible values are Coins, Voucher, Money and Experience. This is deprecated in favor of level_reward_type which uses a slug instead of a human readable expression
+        level_reward_type:
+          type: string
+          example: "coins"
+          description: The reward type in a machine readable slug. Available values are nothing, coin, experience, item
+        level_completed:
+          type: boolean
+          example: false
+          description: Indicates if this level is completed, i.e. all challenges have been completed.
+        level_priority:
+          type: number
+          example: 1
+          description: Indicates the position of the level.
+        reward_claimed:
+          type: boolean
+          example: true
+          description: Indicates if this level has already be claimed.
+        activated_at:
+          type: string
+          example: "2020-11-26T08:51:09Z"
+          description: The date when this level has been activated or null if it's not activated.
+        challenges:
+          type: array
+          items:
+            $ref: '#/components/schemas/BattlePassLevelChallenge'
+          description: An array of BattlePassLevelChallenge objects. Please note, not all values are available from the challenge object, as battle passes handle the lifecycle of challenges. 
+    BattlePassLevelChallenge:
+      type: object
+      description: Each level in battle passes contains one or more challenges that need to be fullfilled to unlock the next level. This structure holds challenge information and is based on the Challenge structure. However, as Battle Passes manage the lifecycle of challenges, this data structure is a bit simpler. The same principles apply mostly as for the personal challenges, i.e. you can share the exact same UI to render personal challenges and battle pass challenges.
+      properties:
+        challenge_id:
+          type: string
+          example: '505538946732425217'
+          description: The unique id of this challenge. Every challenge is linked to a product.
+        challenge_name:
+          type: string
+          example: 'Survive 5 battles'
+          description: The name of the challenge in the language set by the language parameter.
+        challenge_goal:
+          type: integer
+          example: 5
+          description: Indicates how many “tasks” must be completed or done to complete this challenge.
+        challenge_goal_condition: 
+          type: integer
+          example: 0
+          description: "With this you can set the way how the SCILL system approaches the challenges state. 0 means, that the counter of the challenge must be brought above the goal. If this is 1, then the counter must be kept below the goal. This is often useful for challenges that include times, like: Manage the level in under 50 seconds."                
+        user_challenge_current_score:
+          type: integer
+          example: 0
+          description: Indicates how many tasks the user already has completed. Use this in combination with challenge_goal to render a nice progress bar.
+        challenge_xp: 
+          type: integer
+          example: 0
+          description: If you have experience, player rankings whatever, you can use this field to set the gain in that when this challenge is rewarded.   
+        challenge_icon:
+          type: string
+          example: 'black-arrow'
+          description: In the admin panel you can set a string representing an image. This can be a URL, but it can also be an image or texture that you have in your games asset database.
+        challenge_icon_hd:
+          type: string
+          example: 'black-arrow-hd'
+          description: This is the HD variant of the challenge icon image. If you have a game, that runs on multiple platforms that could come in handy. Otherwise just leave blank.
+        type:
+          type: string
+          example: 'unlock'
+          description: "Indicates the status of the challenge. This can be one of the following unlock: Challenge does not track anything. in-progress: Challenge is active and tracking. overtime: User did not manage to finish the challenge in time. unclaimed: The challenge has been completed but the reward has not yet been claimed. finished: The challenge has been successfully be completed and the reward has been claimed"
+    BattlePassLevelId:
+      deprecated: true
+      type: object
+      description: Used in previous versions of the battle pass system to provide the level_id via payload. We changed routes in newer versions to have level id in the path.
+      properties:
+        battle_pass_level_id:
+          type: string
+          example: '563006391554179082'
+          description: The level id, i.e. battle_pass_level_id of the BattlePassLevel object
+      required:
+        - battle_pass_level_id
+    EventPayload:
+      type: object
+      description: Events are the engine and driver for challenges, battle passes and leaderboards within the SCILL ecosystem. They are a simple, yet powerful data structure. The idea is, that you just send events for actions and things that happen in your game or application. SCILL leverages these info to update and progress challenges or to figure out the users score within a leaderboard. You don't have to handle any state in your application or game, as everything is done by SCILL.
+      properties:
+        user_id:
+          type: string
+          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
+          description: This is your user id. You can set this to whatever you like, either your real user id or an obfuscated user id. However you need to be consistent here. Events linked to this user id only track if challenges or battle passes are unlocked with the same user id.
+        session_id:
+          type: string
+          example: '12345'
+          description: This is required if event_type is single and identifies a session. This can be anything used to group events together. For example this can be a level or a match id.
+        event_name:
+          type: string
+          example: 'instant-death'
+          description: This is the event type as a string. These have predefined event names for many games and applications. It’s wise to use those as this allows us to analyse data and help you balancing your application or game.
+        event_type:
+          type: string
+          example: 'single'
+          default: 'single'
+          description: This is either single or group. You can send multiple events in one request (group) or send events in sequence. Please note, that depending on your tier you might run into rate limits.
+        meta_data:
+          $ref: '#/components/schemas/EventMetaData'
+        team_id:
+          nullable: true
+          type: string
+          example: 'XYZ'
+          description: Provide an optional team id that will be used in leaderboards to group results of teams.   
+    EventProperty:
+      type: object
+      description: This object holds information about a proporty of an event. Events have required and optional properties.
+      properties:
+        property_name:
+          type: string
+          description: The name of the property. Is the field value in the event payloads meta_data.
+          example: "string"
+        property_type:
+          type: string
+          description: The type of the property. Can be number or string.
+          example: "number"
+    EventDescription:
+      type: object
+      description: Describes an available event structure
+      properties:
+        event_name:
+          type: string
+          description: The name of the event, i.e kill-enemy. This will be used in the EventPayload as event_name.
+          example: "kill-enemy"
+        required_properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventProperty'
+          description: A list of required properties - properties that must be set
+        optional_properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventProperty'
+          description: A list of optional properties
+    EventMetaData:
+      type: object
+      description: This holds metadata and is specific to each event type. Please have a look at the documentation to learn which properties need to be set for the event-type you want to send.
+      properties:
+        action_object:
+          type: string
+          description: The object that is the source of the action
+        action_subject:
+          type: string
+          description: The object that is the target of the action
+        action_type:
+          type: string
+          description: The name of the action
+        ammo_used:
+          type: integer
+          description: Number of ammonition used
+        amount:
+          type: integer
+          description: A general indicator for number of items (i.e. number of kills in kill-enemy event)
+        amount_gained:
+          type: integer
+          description: The number of ammonition gained
+        amount_given:
+          type: integer
+          description: The number of amminition given
+        animal_name:
+          type: string
+          description: The name of an animal
+        armor:
+          type: integer
+          description: The "health" state of the armor
+        away_team_id:
+          type: string
+          description: The id of the opponent team
+        away_score:
+          type: integer
+          description: The score of the opponent team
+        battle_status:
+          type: integer
+          description: An integer value indicating the battle status (map it to an enum for example in your code)
+        bounty_name:
+          type: string
+          description: The name of the bounty
+        building_id:
+          type: string
+          description: The id or name of a building
+        building_level:
+          type: integer
+          description: The level of the building
+        card_type:
+          type: string
+          description: The name of the card
+        character_name:
+          type: string
+          description: The name of a character
+        checkpoint_id:
+          type: string
+          description: The id/name of a checkpint
+        coordinate_x:
+          type: integer
+          description: The x coordinate in your coordinate system, used for example to store position on a map
+        coordinate_y:
+          type: integer
+          description: The y coordinate in your coordinate system, used for example to store position on a map 
+        crew_name:
+          type: string
+          description: The name of a crew
+        damage_amount:
+          type: integer
+          description: The amount of damage
+        distance:
+          type: integer
+          description: "The distance measured in any coordinate system of your choice. Please note: This is an integer field. If you need more precision multiple your floating point value with 1000 or so to keep the precision but storing it as an integer value"
+        duration:
+          type: integer
+          description: The duration in any unit you like
+        effect_id:
+          type: string
+          description: The effect id or name
+        enemy_character:
+          type: string
+          description: The character type or name of an enemy
+        enemy_type:
+          type: string
+          description: The type of an enemy
+        event_type:
+          type: string
+          description: The event type
+        fuel_consumed:
+          type: integer
+          description: The number of fuel consumed
+        health:
+          type: integer
+          description: The health
+        hit_type:
+          type: string
+          description: The type of a hit (i.e. head, torso, leg)
+        home_team_id:
+          type: string
+          description: The id or name of your or the home team
+        home_score:
+          type: integer
+          description: The score of your or the home team
+        item_id:
+          type: string
+          description: The id of an item
+        item_name:
+          type: string
+          description: The name of an item
+        item_type:
+          type: string
+          description: The type of an item
+        kill_type:
+          type: string
+          description: The type of a kill
+        lap_position:
+          type: integer
+          description: The position in a lap
+        level_id:
+          type: string
+          description: The id of the level
+        map_name:
+          type: string
+          description: The name of a map
+        map_section_name:
+          type: string
+          description: The name of a section of a map
+        mission_id:
+          type: string
+          description: The mission id
+        player_character:
+          type: string
+          description: The name of the player character
+        puzzle_id:
+          type: integer
+          description: The id of a puzzle
+        race_position:
+          type: integer
+          description: The position within a race
+        realm:
+          type: string
+          description: The realm
+        required_time:
+          type: integer
+          description: The time required involed in this event. I.e. in a reach-checkpoint event this could be the time in seconds required to reach that checkpoint from the last checkpoint.
+        resource_gained:
+          type: string
+          description: The name/id of the resource gained
+        resource_given:
+          type: string
+          description: The name/id of the resource given (to someone else)
+        resource_name:
+          type: string
+          description: The name of the resource
+        round_id:
+          type: integer
+          description: The id of the round
+        round_type:
+          type: string
+          description: The type of the round
+        score:
+          type: integer
+          description: The score
+        stat_type:
+          type: string
+          description: The type of the stats item
+        time_condition:
+          type: string
+          description: The timing condition
+        transport_id:
+          type: string
+          description: The id of the transport
+        type:
+          type: string
+          description: The name/id of a type
+        unit_type:
+          type: string
+          description: The name/id of a unit type
+        upgrade_type:
+          type: string
+          description: The name of the upgrade
+        weapon_action:
+          type: string
+          description: The action taken on a weapon (i.e. infrared-activated)
+        weapon_id:
+          type: string
+          description: The id of the weapon
+        weapon_type:
+          type: string
+          description: The type of the weapon
+        weapon_used:
+          type: string
+          description: The name/id of a weapon used in a kill or similar event
+        zone_name:
+          type: string
+          description: The name of the zone          
+    Error:
+      type: object
+      description: Errors are reported using this structure. Error messages are human readable and will be translated (if available) in the language provided by the language query parameter.
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - message
+    UnknownChallengeError:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'Unknown challenge type: asdfasdf-enemy'
+          description: The error message
+        error_slug: 
+          type: string
+          example: 'unknown_challenge_type_%s'
+          description: Machine readable error message
+        status_code: 
+          type: integer
+          example: 400
+          description: HTTP status code of this error message'
+    SocketToken:
+      type: object
+      properties:
+        socket_token:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsInR59....'
+      required:
+        - socket_token
+    NotificationTopic:
+      type: object
+      description: Realtime updates are implemented via MQTT - a resource efficient real time message system. Each user has it's own channel in our MQTT system that you need to request from the backend. This structure returns the topic for the user provided with the access token.
+      properties:
+        topic:
+          type: string
+          example: 'topic/challenges/3ea785c6d0ce23e67beff'
+      required:
+        - topic        
+    AccessToken:
+      type: object
+      description: As SCILL does not know anything about the users an access token is required to handle authentication. Requesting an access token in the backend returns this object that contains the token which needs to be set as the Authentication Bearer in subsequent requests to the SCILL backend.
+      properties:
+        token:
+          type: string
+          example: 'eyJhbGciOiJIUzI1NiIsInR59....'
+      required:
+        - access_token
+    ForeignUserIdentifier:
+      type: object
+      description: Requesting an access token requires this object to be sent containing the user id of your user. The user id can be anything (we dont care) but it must be consistent for the lifetime of the user.
+      properties:
+        user_id:
+          type: string
+          example: '123456789'
+          description: Any string allowed, this is the foreign user identifier that has no relation in the SCILL database and the user is unkown to SCILL.
+      required:
+        - user_id
+    ChallengeWebhookPayload:
+      description: The payload sent to the users webhook.
+      type: object
+      properties:
+        webhook_type:
+          type: string
+          example: "challenge-changed"
+          description: The type of the webhook. Depending on the module, there are different webhook types indicating different events. Check the reference documentation to see all types.
+        category_position:
+          type: number
+          example: 1
+          description: The index of the category this challenge is linked to. When you request personal challenges, you get an array of categories which contain an array of challenges in their challenges property. This value indicates in which category this challenge can be found. Speeds up updating UI as you don't need to iterate through all catagories and challenges to find the challenge.
+        user_token:
+          type: string
+          example: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ..."
+          description: The access token for the user of that challenge. You can use that user_token to directly send another
+            event and therefore to chain different SCILL pieces together. For example you can send another event driving another
+            challenge or battle pass whenever a user has completed a challenge.
+        new_challenge:
+          $ref: '#/components/schemas/Challenge'
+        old_challenge:
+          $ref: '#/components/schemas/Challenge'          
+    BattlePassUnlockPayload:
+      type: object
+      description: Unlocking a battle pass requires some info to be sent so we can validate everything is ok
+      required:
+        - purchase_price
+        - purchase_currency
+      properties:
+        purchase_price:
+          type: number
+          example: 5.99
+          description: The purchase price. Set to 0 if this was free. The idea behind this is to provide information via an Admin Panel on average purchase price and to also allow showing users purchase info in their user account.
+        purchase_currency:
+          type: string
+          example: "EUR"
+          description: The currency (EUR, USD, etc) of the purchase price
+    BattlePassUnlockInfo:
+      type: object
+      properties:
+        purchase_id: 
+          type: string
+          example: "603793843025346562"
+          description: "The id of this battle pass purchase"
+        battle_pass_id: 
+          type: string
+          description: "The battle pass id"
+          example: "603693723277918210"
+        user_id: 
+          type: string
+          example: "1234"
+          description: "The user id of this battle pass purchase"
+        purchase_price: 
+          type: number
+          example: 5.99
+          description: The price paid for this battle pass
+        purchase_currency: 
+          type: string
+          example: "EUR"
+          description: "The currency used to purchase this battle pass"
+        purchased_at: 
+          type: string
+          description: The date this battle pass has been purchased
+          example: "2020-11-02T16:14:17Z"
+        battle_pass_completed: 
+          type: boolean
+          description: Indicates if this battle pass has been completed
+          example: false
+    BattlePassChallengeChangedPayload:
+      type: object
+      description: This payload is sent in Webhooks and notifications as part of the battlepass-challenge-changed notification. The idea is to provide enough information to quickly update UI or implementing backend logic. We provide both the state of the object before it changed, and after that. This allows you to react in many different ways.
+      properties:
+        webhook_type:
+          type: string
+          description: The type of the notification. If you receive this payload, it's most likely battlepass-challenge-changed
+          example: battlepass-challenge-changed
+        old_battle_pass_challenge:
+          $ref: '#/components/schemas/BattlePassChallengeState'
+        new_battle_pass_challenge:
+          $ref: '#/components/schemas/BattlePassChallengeState'          
+    BattlePassChallengeState:
+      description: This object stores information about a battle pass challenge state. It is designed to update challenges loaded previously with the getBattlePassLevels API. Indices allow you to quickly update locally stored Challenge objects without iterating or reloading data.
+      type: object
+      properties:
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The unique id of the app
+        battle_pass_id:
+          type: string
+          example: "603693723277918210"
+          description: The unique id of this battle pass.
+        level_id:
+          type: string
+          example: "563006391671062538"
+          description: Unique id of this BattlePassLevel object.
+        user_id:
+          type: string
+          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
+          description: This is your user id. You can set this to whatever you like, either your real user id or an obfuscated user id. However you need to be consistent here. Events linked to this user id only track if challenges or battle passes are unlocked with the same user id.         
+        level_position_index:
+          type: integer
+          example: 0
+          description: Typical usage pattern is to load battle pass levels with getBattlePassLevels operation and store them for rendering. Using this value you can quickly identify the index of the level that changed. 
+        challenge_id:
+          type: string
+          example: '505538946732425217'
+          description: The unique id of this challenge. Every challenge is linked to a product.
+        challenge_position_index:
+          type: integer
+          example: 1
+          description: Same as level_position_index. Use this index to identify the challenge that changed within the levels challenges array. Typical usage pattern is to update the previously stored score and type.
+        challenge_goal:
+          type: integer
+          example: 5
+          description: Indicates how many “tasks” must be completed or done to complete this challenge.
+        user_challenge_current_score:
+          type: integer
+          example: 0
+          description: Indicates how many tasks the user already has completed. Use this in combination with challenge_goal to render a nice progress bar.    
+        type:
+          type: string
+          example: 'unlock'
+          description: "Indicates the status of the challenge. This can be one of the following unlock: Challenge does not track anything. in-progress: Challenge is active and tracking. overtime: User did not manage to finish the challenge in time. unclaimed: The challenge has been completed but the reward has not yet been claimed. finished: The challenge has been successfully be completed and the reward has been claimed"        
+    BattlePassLevelReward:
+      type: object
+      description: This objects holds information about a battle pass reward
+      properties:
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The unique id of the app
+        battle_pass_id:
+          type: string
+          example: "603693723277918210"
+          description: The unique id of this battle pass.
+        level_id:
+          type: string
+          example: "563006391671062538"
+          description: Unique id of this BattlePassLevel object.
+        user_id:
+          type: string
+          example: 'd290f1ee-6c54-4b01-90e6-d701748f0851'
+          description: This is your user id. You can set this to whatever you like, either your real user id or an obfuscated user id. However you need to be consistent here. Events linked to this user id only track if challenges or battle passes are unlocked with the same user id.         
+        level_position_index:
+          type: integer
+          example: 0
+          description: Typical usage pattern is to load battle pass levels with getBattlePassLevels operation and store them for rendering. Using this value you can quickly identify the index of the level that changed. 
+        reward_amount:
+          type: string
+          example: "100"
+          description: In the Admin Panel you can set different types of rewards. You can also set an identifier of an in-game-item or anything you like. Use this to include the reward into your own business logic.
+        reward_type_name:
+          type: string
+          example: "Coins"
+          description: There are different types of rewards available. Possible values are Coins, Voucher, Money and Experience.         
+    BattlePassLevelClaimedPayload:
+      type: object
+      description: Payload sent via Webhook or realtime notifications whenever a usrs level reward has been claimed. Use this payload to unlock the item for the specified user.
+      properties:
+        webhook_type:
+          type: string
+          description: The type of the notification. If you receive this payload, it's most likely battlepass-level-reward-claimed
+          example: battlepass-level-reward-claimed
+        battle_pass_level_reward_claimed:
+          $ref: '#/components/schemas/BattlePassLevelReward'
+    BattlePassState:
+      type: object
+      description: This object holds some basic info about lifetime of a battle pass and is used in expired notifications.
+      properties:
+        battle_pass_id:
+          type: string
+          example: "603693723277918210"
+          description: The unique id of this battle pass.
+        app_id:
+          type: string
+          example: "597737952688570369"
+          description: The unique id of the app
+        battle_pass_priority:
+          type: integer
+          example: 1
+          description: The priority of the battle pass. I.e. if multiple are available you can use this field to sort them.
+        start_date:
+          type: string
+          format: RFC3339
+          example: '2020-08-17T00:00:00Z'
+          description: The date (in iso format) when the Battle Pass starts. Tracking begins once this date is passed.
+        end_date:
+          type: string
+          format: RFC3339
+          example: '2020-08-17T00:00:00Z'
+          description: The date (in iso format) when the Battle Pass ends. Tracking stops once the end is reached and users will not be able to progress further than what they have achieved up to that point.
+        is_active:
+          type: boolean
+          example: false
+          description: Indicated if this battle pass is active.
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Access Token or API-Key
+      description: You can either use the API-Key or an Access Token generated earlier with the auth/generate-access-token route. Only use API-Key on server side, never expose it on client side. Use Access Tokens where possible. More info
+        on this topic can be found here https://developers.4players.io/scill/api/authentication/
+    oAuthNoScopes:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://api.example.com/oauth2/authorize
+          scopes: {}
+    ApiKeyType:
+      type: apiKey
+      in: query
+      name: auth
+      description: Set to access_token if you have assigned an access token and leave empty if you use an API key
+  responses:
+    BattlePassUnlocked:
+      description: Returns unlock info about a battle pass
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BattlePassUnlockInfo'
+    ActionSuccessful:
+      description: The action has been successful
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActionResponse'
+    UnknownChallengeType:
+      description: The event type is not supported
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/UnknownChallengeError'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    RequestNotPossible:
+      description: This request could not be performed. Most of the time this happens if the action already has been executed before.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'            
+    BadRequest:
+      description: Request could not complete as parameters were missing or were not set correctely.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    SocketToken:
+      description: Response with Socket Token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ActionResponse'

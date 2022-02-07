@@ -445,8 +445,9 @@ inline bool TryGetJsonValue(const TSharedPtr<FJsonObject>& JsonObject, const FSt
 			OptionalValue = Value;
 			return true;
 		}
-		else
-			return false;
+        // Adjusted from the original template
+		// else
+			 // return false;
 	}
 	return true; // Absence of optional value is not a parsing error
 }
